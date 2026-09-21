@@ -94,4 +94,32 @@ defmodule Carrito do
     mensajes ++ ["Total del carrito: #{total}"]
   end
 
+  @doc """
+
+Funcion que agrega un producto a la lista del carrito:
+
+"""
+  defp agregar_producto(carrito, producto) do
+    [producto | carrito]
+  end
+
+@doc """
+
+Funcion que busca un producto dentro del carrito utilizando su nombre.
+Retorna una tupla indicando si el producto fue encontrado:
+
+"""
+  defp buscar_producto(carrito, nombre) do
+    producto = Enum.find(carrito, fn producto ->
+      producto.nombre == nombre
+    end)
+
+    if producto == nil do
+      {:error, "Producto no encontrado"}
+    else
+      {:ok, producto}
+    end
+  end
+
+
 end
