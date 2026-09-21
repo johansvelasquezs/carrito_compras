@@ -49,5 +49,49 @@ defmodule Carrito do
 
   end
 
-  
+  @doc """
+
+  Funcion que crea un producto utilizando su nombre, precio y cantidad
+  y lo almacena en un mapa:
+
+  """
+  defp crear_producto(nombre, precio, cantidad) do
+    %{
+      nombre: nombre,
+      precio: precio,
+      cantidad: cantidad
+    }
+  end
+
+
+  @doc """
+
+  Funcion que calcula el valor total de los productos que se encuentran
+  en el carrito:
+
+  """
+
+  defp calcular_total(carrito) do
+    Enum.reduce(carrito, 0, fn producto, total ->
+      total + producto.precio * producto.cantidad
+    end)
+  end
+
+
+  @doc """
+
+  Funcion que genera los mensajes con la informacion de los productos
+  del carrito y el valor total de la compra:
+
+  """
+  defp generar_mensaje(carrito, total) do
+    mensajes = Enum.map(carrito, fn producto ->
+      "Producto: #{producto.nombre} | " <>
+      "Precio: #{producto.precio} | " <>
+      "Cantidad: #{producto.cantidad}"
+    end)
+
+    mensajes ++ ["Total del carrito: #{total}"]
+  end
+
 end
