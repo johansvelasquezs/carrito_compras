@@ -1,5 +1,5 @@
 defmodule Carrito do
- @moduledoc """
+  @moduledoc """
   Modulo que representa un carrito de compras.
   -version 1.0
   -autores: Samuel, Joan, Camilo, Esteban
@@ -12,15 +12,75 @@ defmodule Carrito do
   def main do
     carrito = []
     Util.mostrar_mensaje("=== CARRITO DE COMPRAS ===")
+
     cantidad_productos =
       "Ingrese la cantidad de productos que desea agregar: "
       |> Util.ingresar(:entero)
+
     carrito = ingresar_productos(carrito, cantidad_productos)
+    mostrar_carrito(carrito)
+    menu(carrito)
+  end
+
+  # --- MENÚ INTERACTIVO ---
+  defp menu(carrito) do
+    Util.mostrar_mensaje("\n--- MENÚ DE OPCIONES ---")
+    Util.mostrar_mensaje("1. Actualizar cantidad de un producto")
+    Util.mostrar_mensaje("2. Eliminar un producto")
+    Util.mostrar_mensaje("3. Ver carrito y total")
+    Util.mostrar_mensaje("4. Salir")
+
+    opcion = "Seleccione una opción: " |> Util.ingresar(:entero)
+
+    case opcion do
+      1 ->
+        nombre = "Ingrese el nombre del producto a actualizar: " |> Util.ingresar(:texto)
+        nueva_cantidad = "Ingrese la nueva cantidad: " |> Util.ingresar(:entero)
+
+        case actualizar_producto(carrito, nombre, nueva_cantidad) do
+          {:ok, nuevo_carrito} ->
+            Util.mostrar_mensaje("¡Producto actualizado con éxito!")
+            mostrar_carrito(nuevo_carrito)
+            menu(nuevo_carrito)
+
+          {:error, msg} ->
+            Util.mostrar_mensaje(msg)
+            menu(carrito)
+        end
+
+      2 ->
+        nombre = "Ingrese el nombre del producto a eliminar: " |> Util.ingresar(:texto)
+
+        case eliminar_producto(carrito, nombre) do
+          {:ok, nuevo_carrito} ->
+            Util.mostrar_mensaje("¡Producto eliminado con éxito!")
+            mostrar_carrito(nuevo_carrito)
+            menu(nuevo_carrito)
+
+          {:error, msg} ->
+            Util.mostrar_mensaje(msg)
+            menu(carrito)
+        end
+
+      3 ->
+        mostrar_carrito(carrito)
+        menu(carrito)
+
+      4 ->
+        Util.mostrar_mensaje("¡Gracias por usar el carrito de compras!")
+
+      _ ->
+        Util.mostrar_mensaje("Opción inválida, intente de nuevo.")
+        menu(carrito)
+    end
+  end
+
+  defp mostrar_carrito(carrito) do
     total = calcular_total(carrito)
+
     carrito
     |> generar_mensaje(total)
     |> Enum.each(&Util.mostrar_mensaje/1)
-
   end
 
   defp ingresar_productos(carrito, 0) do
@@ -28,7 +88,6 @@ defmodule Carrito do
   end
 
   defp ingresar_productos(carrito, cantidad) do
-
     nombre =
       "Ingrese el nombre del producto: "
       |> Util.ingresar(:texto)
@@ -42,19 +101,11 @@ defmodule Carrito do
       |> Util.ingresar(:entero)
 
     producto = crear_producto(nombre, precio, cantidad_producto)
-
     nuevo_carrito = agregar_producto(carrito, producto)
 
     ingresar_productos(nuevo_carrito, cantidad - 1)
-
   end
 
-  @doc """
-
-  Funcion que crea un producto utilizando su nombre, precio y cantidad
-  y lo almacena en un mapa:
-
-  """
   defp crear_producto(nombre, precio, cantidad) do
     %{
       nombre: nombre,
@@ -63,56 +114,32 @@ defmodule Carrito do
     }
   end
 
-
-  @doc """
-
-  Funcion que calcula el valor total de los productos que se encuentran
-  en el carrito:
-
-  """
-
   defp calcular_total(carrito) do
     Enum.reduce(carrito, 0, fn producto, total ->
       total + producto.precio * producto.cantidad
     end)
   end
 
-
-  @doc """
-
-  Funcion que genera los mensajes con la informacion de los productos
-  del carrito y el valor total de la compra:
-
-  """
   defp generar_mensaje(carrito, total) do
-    mensajes = Enum.map(carrito, fn producto ->
-      "Producto: #{producto.nombre} | " <>
-      "Precio: #{producto.precio} | " <>
-      "Cantidad: #{producto.cantidad}"
-    end)
+    mensajes =
+      Enum.map(carrito, fn producto ->
+        "Producto: #{producto.nombre} | " <>
+          "Precio: #{producto.precio} | " <>
+          "Cantidad: #{producto.cantidad}"
+      end)
 
     mensajes ++ ["Total del carrito: #{total}"]
   end
 
-  @doc """
-
-Funcion que agrega un producto a la lista del carrito:
-
-"""
   defp agregar_producto(carrito, producto) do
     [producto | carrito]
   end
 
-@doc """
-
-Funcion que busca un producto dentro del carrito utilizando su nombre.
-Retorna una tupla indicando si el producto fue encontrado:
-
-"""
   defp buscar_producto(carrito, nombre) do
-    producto = Enum.find(carrito, fn producto ->
-      producto.nombre == nombre
-    end)
+    producto =
+      Enum.find(carrito, fn producto ->
+        producto.nombre == nombre
+      end)
 
     if producto == nil do
       {:error, "Producto no encontrado"}
@@ -120,10 +147,7 @@ Retorna una tupla indicando si el producto fue encontrado:
       {:ok, producto}
     end
   end
-@doc """
-  Funcion que actualiza la cantidad de un producto que se encuentra
-  en el carrito:
-  """
+
   def actualizar_producto(carrito, nombre, nueva_cantidad) do
     resultado = buscar_producto(carrito, nombre)
 
@@ -143,9 +167,6 @@ Retorna una tupla indicando si el producto fue encontrado:
     end
   end
 
-  @doc """
-  Funcion que elimina un producto del carrito utilizando su nombre:
-  """
   def eliminar_producto(carrito, nombre) do
     resultado = buscar_producto(carrito, nombre)
 
@@ -160,6 +181,4 @@ Retorna una tupla indicando si el producto fue encontrado:
       {:ok, nuevo_carrito}
     end
   end
-
 end
-
