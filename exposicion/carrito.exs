@@ -120,6 +120,46 @@ Retorna una tupla indicando si el producto fue encontrado:
       {:ok, producto}
     end
   end
+@doc """
+  Funcion que actualiza la cantidad de un producto que se encuentra
+  en el carrito:
+  """
+  def actualizar_producto(carrito, nombre, nueva_cantidad) do
+    resultado = buscar_producto(carrito, nombre)
 
+    if resultado == {:error, "Producto no encontrado"} do
+      resultado
+    else
+      nuevo_carrito =
+        Enum.map(carrito, fn producto ->
+          if producto.nombre == nombre do
+            %{producto | cantidad: nueva_cantidad}
+          else
+            producto
+          end
+        end)
+
+      {:ok, nuevo_carrito}
+    end
+  end
+
+  @doc """
+  Funcion que elimina un producto del carrito utilizando su nombre:
+  """
+  def eliminar_producto(carrito, nombre) do
+    resultado = buscar_producto(carrito, nombre)
+
+    if resultado == {:error, "Producto no encontrado"} do
+      resultado
+    else
+      nuevo_carrito =
+        Enum.filter(carrito, fn producto ->
+          producto.nombre != nombre
+        end)
+
+      {:ok, nuevo_carrito}
+    end
+  end
 
 end
+
